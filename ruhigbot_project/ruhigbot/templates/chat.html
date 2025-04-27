@@ -4,20 +4,134 @@
 <head>
     <meta charset="UTF-8">
     <title>Ruhig-Bot Chat</title>
-    <link rel="stylesheet" href="{% static 'ruhigbot/style.css' %}">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
+    <div class="background"></div>
     <div class="chatbox">
         <h2>💬 Ruhig-Bot Chat</h2>
-        {% for message in messages %}
-            <div class="message {{ message.sender }}">
-                <strong>{{ message.sender|capfirst }}:</strong> {{ message.text }}
-            </div>
-        {% endfor %}
-        <form method="post">
-            {% csrf_token %}
-            <input type="text" name="text" placeholder="Was möchtest du sagen?" autofocus>
-        </form>
+        <div id="messages">
+            {% for message in messages %}
+                <div class="message {{ message.role }}">
+                    <div class="bubble">
+                        <div class="icon">
+                            {% if message.role == 'user' %}
+                                👤
+                            {% else %}
+                                🤖
+                            {% endif %}
+                        </div>
+                        <div class="content" data-raw="{{ message.content|escape }}"></div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Was möchtest du sagen?" autofocus autocomplete="off">
+            <button id="sendMessage">Senden</button>
+        </div>
+        <div class="reset-chat">
+            <button id="resetChat">Chat Zurücksetzen</button>
+        </div>
     </div>
+
+    
+
+    <script>
+document.querySelectorAll('.content').forEach(el => {
+    const raw = el.getAttribute('data-raw');
+    el.innerHTML = marked.parse(raw);
+    el.parentElement.parentElement.classList.add('fade-in');
+});
+
+// Optional: Scroll to the bottom automatically
+const messages = document.getElementById('messages');
+messages.scrollTop = messages.scrollHeight;
+
+// Send message via AJAX
+document.getElementById("sendMessage").addEventListener("click", function() {
+    const userInput = document.getElementById("userInput").value;
+    
+    // Empty send message button
+    const sendButton = document.getElementById("sendMessage");
+    sendButton.innerHTML = ""; // Clear the button text
+
+    // Check if input is not empty
+    if (userInput.trim() !== "") {
+        const sendButton = document.getElementById("sendMessage");
+
+        // Add the loading class to the button to show the spinner
+        sendButton.classList.add("loading");
+
+        // Make AJAX request
+        fetch("{% url 'chat' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value  // Adding CSRF token here
+            },
+            body: `text=${encodeURIComponent(userInput)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Append the new messages to the chat
+            const messagesContainer = document.getElementById("messages");
+            messagesContainer.innerHTML = "";
+            data.messages.forEach(message => {
+                const messageElement = document.createElement("div");
+                messageElement.classList.add("message", message.role);
+                messageElement.innerHTML = `
+                    <div class="bubble">
+                        <div class="icon">${message.role === 'user' ? '👤' : '🤖'}</div>
+                        <div class="content">${marked.parse(message.content)}</div>
+                    </div>
+                `;
+                messagesContainer.appendChild(messageElement);
+            });
+
+            // Scroll to the bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Clear input field
+            document.getElementById("userInput").value = "";
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        })
+        .finally(() => {
+            // Remove the loading class after the response is received
+            sendButton.classList.remove("loading");
+        });
+    }
+
+    // Refill the button text
+    sendButton.innerHTML = "Senden"; // Reset the button text
+});
+
+// Reset chat functionality
+document.getElementById("resetChat").addEventListener("click", function() {
+    fetch("{% url 'reset_chat' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value  // Adding CSRF token here
+        }
+    })
+    .then(response => {
+        // Check if the response is a redirect (status code 302)
+        if (response.redirected) {
+            window.location.href = response.url;  // Redirect to the URL specified in the response
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
+});
+
+</script>
+
 </body>
 </html>

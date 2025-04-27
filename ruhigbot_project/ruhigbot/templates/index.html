@@ -3,6 +3,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Important for mobile -->
     <title>Ruhig-Bot</title>
     <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
@@ -11,26 +12,24 @@
         <h1>🧘 Willkommen beim Ruhig-Bot</h1>
         <form method="post">
             {% csrf_token %}
-            <label>Name:</label>
-            <input type="text" name="name">
+            
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" placeholder="Ihr Name">
 
-            <label>Alter:</label>
-            <input type="number" name="alter">
+            <label for="alter">Alter:</label>
+            <input type="number" id="alter" name="alter" placeholder="Ihr Alter">
 
-            <label>Woher kommen Sie:</label>
-            <input type="text" name="herkunft">
+            <label for="herkunft">Woher kommen Sie:</label>
+            <input type="text" id="herkunft" name="herkunft" placeholder="Ihr Herkunftsort">
 
-            <label>Was mir in früheren Therapien geholfen hat:</label>
-            <textarea name="was_geholfen_hat"></textarea>
+            <label for="was_geholfen_hat">Was mir in früheren Therapien geholfen hat:</label>
+            <textarea id="was_geholfen_hat" name="was_geholfen_hat" rows="3" placeholder="Erzählen Sie uns..."></textarea>
 
-            <label>Was mich jetzt stört <span style="color:red">*</span>:</label>
-            <textarea name="was_stoert" required></textarea>
+            <label for="was_stoert">Was mich jetzt stört <span class="required">*</span>:</label>
+            <textarea id="was_stoert" name="was_stoert" rows="3" placeholder="Worüber möchten Sie sprechen?" required></textarea>
 
             <button type="submit">Absenden & Ruhig werden</button>
         </form>
-        <div class="skip">
-            <a href="{% url 'chat' %}">Formular überspringen und direkt zum Chat →</a>
-        </div>
     </div>
 </body>
 </html>
