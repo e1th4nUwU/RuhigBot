@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Ruhig-Bot</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>🧘 Willkommen beim Ruhig-Bot</h1>
+        <form method="post">
+            {% csrf_token %}
+            <label>Name:</label>
+            <input type="text" name="name">
+
+            <label>Alter:</label>
+            <input type="number" name="alter">
+
+            <label>Woher kommen Sie:</label>
+            <input type="text" name="herkunft">
+
+            <label>Was mir in früheren Therapien geholfen hat:</label>
+            <textarea name="was_geholfen_hat"></textarea>
+
+            <label>Was mich jetzt stört <span style="color:red">*</span>:</label>
+            <textarea name="was_stoert" required></textarea>
+
+            <button type="submit">Absenden & Ruhig werden</button>
+        </form>
+        <div class="skip">
+            <a href="{% url 'chat' %}">Formular überspringen und direkt zum Chat →</a>
+        </div>
+    </div>
+</body>
+</html>
