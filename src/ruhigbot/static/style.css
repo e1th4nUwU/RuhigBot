@@ -7,7 +7,6 @@ html {
     font-family: 'Poppins', 'Helvetica Neue', Arial, sans-serif;
     background: linear-gradient(to bottom right, #cfe9ff, #e6f0ff);
     color: #003366;
-    display: flex;
     align-items: center;
     justify-content: center;
     padding: 1rem;
